@@ -1,22 +1,293 @@
-{% extends "layout.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Edit Tweet{% else %}Create Tweet{% endif %} | TweetBar</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1f1f1f;
+            --accent-color: #6b5eff;
+            --accent-hover: #3b82f6;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-color: #444;
+            --input-bg: #2d2d2d;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--secondary-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .form-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .form-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .form-field {
+            margin-bottom: 20px;
+        }
+        
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 94, 255, 0.2);
+        }
+        
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(107, 94, 255, 0.05);
+        }
+        
+        .file-input-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+        
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .submit-button:hover {
+            background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 94, 255, 0.3);
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            width: 100%;
+            padding: 10px;
+        }
+        
+        .back-link:hover {
+            color: var(--accent-color);
+        }
+        
+        .back-link i {
+            margin-right: 8px;
+        }
+        
+        /* Preview for selected image */
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Error messages */
+        .errorlist {
+            color: #ff6b6b;
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
 
-{% block title %}
-Edit-tweet
-{% endblock %}
+<body>
+    <div class="form-container">
+        <h2 class="form-title">
+            <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus-circle{% endif %}"></i>
+            {% if form.instance.pk %}Edit Your Tweet{% else %}Create New Tweet{% endif %}
+        </h2>
 
-{% block content %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Text Field -->
+            <div class="form-field">
+                <label for="{{ form.text.id_for_label }}">What's happening?</label>
+                {{ form.text }}
+                {% if form.text.errors %}
+                    <div class="errorlist">{{ form.text.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <!-- Photo Field with Preview -->
+            <div class="form-field">
+                <label for="{{ form.photo.id_for_label }}">Add an image</label>
+                <div class="file-input-container">
+                    {{ form.photo }}
+                    <label class="file-input-label" for="{{ form.photo.id_for_label }}">
+                        <i class="fas fa-cloud-upload-alt file-input-icon"></i>
+                        <span>Click to upload or drag and drop</span>
+                        <small>PNG, JPG, GIF (Max 5MB)</small>
+                    </label>
+                </div>
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImage" src="#" alt="Preview" />
+                </div>
+                {% if form.photo.errors %}
+                    <div class="errorlist">{{ form.photo.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="submit-button">
+                <i class="fas fa-{% if form.instance.pk %}save{% else %}paper-plane{% endif %}"></i>
+                {% if form.instance.pk %}Update Tweet{% else %}Post Tweet{% endif %}
+            </button>
+            
+            <a href="{% url 'tweet_list' %}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to all tweets
+            </a>
+        </form>
+    </div>
 
-<h2>
-     {%if from.instance.pk %} Edit Tweet 
-    {% else %}
-     Create Tweet 
-     {% endif %}
-     <form method="post" enctype="multipart/form-data" class="form">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button class="btn btn-warning" type="submit">Submit</button>
-        <a href="{% url 'tweet_list' %}"> back to tweet list </a>
-     </form>
-     <h2>
-{% endblock %}
-
+    <script>
+        // Image preview functionality
+        document.getElementById('{{ form.photo.id_for_label }}').addEventListener('change', function(event) {
+            const preview = document.getElementById('previewImage');
+            const previewContainer = document.getElementById('imagePreview');
+            
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else if (preview.src) {
+                previewContainer.style.display = 'block';
+            }
+        });
+        
+        // If editing and image exists, show it
+        {% if form.instance.photo %}
+            document.addEventListener('DOMContentLoaded', function() {
+                const preview = document.getElementById('previewImage');
+                const previewContainer = document.getElementById('imagePreview');
+                preview.src = '{{ form.instance.photo.url }}';
+                previewContainer.style.display = 'block';
+            });
+        {% endif %}
+    </script>
+</body>
+</html>

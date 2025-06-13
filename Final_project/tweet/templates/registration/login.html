@@ -1,17 +1,105 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}
-Login
-{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* General body styles */
+        body {
+            background-color: #121212; /* Dark background */
+            font-family: Arial, sans-serif; /* Font style */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Full height */
+            margin: 0;
+            padding: 0;
+            color: #fff; /* White text */
+        }
 
-{% block content %}
-<h2> Login Form</h2>
-<form method="post">
-     {% csrf_token %}
-     {{form.as_p}}
-     <button class="btn btn-primary">Login</button>
+        /* Title styles */
+        h1 {
+            color: #ffffff; /* White color for title */
+            margin-bottom: 20px; /* Space below title */
+            font-size: 32px; /* Title size */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); /* Glow effect */
+        }
 
-</from>
+        /* Form container styles */
+        form {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f); /* Gradient background */
+            padding: 30px; /* Padding around form */
+            border-radius: 15px; /* Rounded corners */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Light shadow */
+            width: 300px; /* Fixed width */
+            text-align: center; /* Centered text */
+        }
 
-<p> Don't have an account? <a href = "{% url 'register' %}"> Register here </a></p>
-{% endblock %}
+        /* Input field styles */
+        input[type="text"],
+        input[type="password"] {
+            width: 100%; /* Full width */
+            padding: 10px; /* Padding inside input */
+            margin: 8px 0; /* Margin around input */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            font-size: 16px; /* Font size */
+            background-color: #333; /* Dark input background */
+            color: #fff; /* White text */
+            transition: background-color 0.3s; /* Transition effect */
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            background-color: #444; /* Lighter background on focus */
+        }
+
+        /* Button styles */
+        button {
+            background-color: #0095f6; /* Instagram blue */
+            color: #ffffff; /* White text */
+            padding: 10px; /* Padding around button */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            font-size: 16px; /* Font size */
+            cursor: pointer; /* Pointer cursor on hover */
+            width: 100%; /* Full width */
+            margin-top: 10px; /* Space above button */
+            transition: background-color 0.3s; /* Transition effect */
+        }
+
+        button:hover {
+            background-color: #007bbf; /* Darker blue on hover */
+        }
+
+        /* Link styles */
+        p {
+            margin-top: 15px; /* Space above paragraph */
+            color: #b0b0b0; /* Gray text */
+        }
+
+        a {
+            color: #0095f6; /* Instagram blue */
+            text-decoration: none; /* No underline */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Login</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+</body>
+
+</html>
