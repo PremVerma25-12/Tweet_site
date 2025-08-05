@@ -2,439 +2,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TweetBar | {% block title %}Social Microblogging{% endblock %}</title>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-bg: #121212;
-            --secondary-bg: #1f1f1f;
-            --accent-color: #d6249f;
-            --accent-hover: #ff2dac;
-            --secondary-accent: #285AEB;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --border-color: #333333;
-        }
-        
-        body {
-            background-color: var(--primary-bg);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        
-        /* Improved Navbar */
-        .navbar {
-            background-color: var(--secondary-bg);
-            padding: 12px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, var(--accent-color), var(--secondary-accent));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-decoration: none;
-        }
-        
-        .search-container {
-            flex-grow: 1;
-            max-width: 500px;
-            margin: 0 20px;
-        }
-        
-        .search-container input {
-            width: 100%;
-            background-color: #2b2b2b;
-            border: 1px solid var(--border-color);
-            padding: 10px 15px;
-            color: var(--text-primary);
-            border-radius: 20px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        
-        .search-container input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(214, 36, 159, 0.2);
-        }
-        
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 0.9rem;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, var(--accent-color), var(--secondary-accent));
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(45deg, var(--accent-hover), #3a6df0);
-            transform: translateY(-2px);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
-        }
-        
-        .btn-outline:hover {
-            background-color: rgba(214, 36, 159, 0.1);
-        }
-        
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .create-tweet-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(45deg, var(--accent-color), var(--secondary-accent));
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            margin: 20px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .create-tweet-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        /* Tweet Grid */
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-        }
-        
-        .tweet-card {
-            background-color: var(--secondary-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-        
-        .tweet-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .tweet-img-container {
-            position: relative;
-            width: 100%;
-            padding-top: 100%; /* Square aspect ratio */
-            background-color: #000;
-        }
-        
-        .tweet-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .tweet-content {
-            padding: 16px;
-        }
-        
-        .tweet-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-        
-        .tweet-username {
-            font-weight: 600;
-            margin: 0;
-            font-size: 0.95rem;
-        }
-        
-        .tweet-text {
-            color: var(--text-secondary);
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-        
-        .tweet-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-        }
-        
-        .tweet-date {
-            color: #757575;
-            font-size: 0.8rem;
-        }
-        
-        .tweet-actions {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .action-btn {
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: color 0.2s ease;
-            font-size: 0.9rem;
-        }
-        
-        .action-btn:hover {
-            color: var(--accent-color);
-        }
-        
-        .action-btn i {
-            margin-right: 5px;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            overflow: auto;
-        }
-        
-        .modal-content {
-            margin: auto;
-            display: block;
-            max-width: 90%;
-            max-height: 90%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .close {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        
-        .close:hover {
-            color: var(--accent-color);
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
-            
-            .search-container {
-                width: 100%;
-                margin: 10px 0;
-            }
-            
-            .image-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .image-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .auth-buttons {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .btn {
-                flex-grow: 1;
-                text-align: center;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TweetBar | {% block title %}Social Microblogging{% endblock %}</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+
+  <link rel="stylesheet" href="{% static 'css/t_list.css' %}" />
+
+  <style>
+    .btn:hover, button:hover, input[type="file"]:hover {
+      background-color: #444 !important;
+      transform: scale(1.05);
+    }
+
+    .alert {
+      padding: 10px 20px;
+      margin: 15px auto;
+      border-radius: 5px;
+      font-weight: 600;
+      width: fit-content;
+      color: white;
+      background-color: #28a745;
+      animation: fadeOut 3s ease-in-out forwards;
+    }
+
+    .alert-error {
+      background-color: #dc3545;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+      }
+    }
+
+    .avatar-container {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .avatar-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .avatar-form-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      padding: 3px;
+    }
+
+    .tweet-username {
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <a class="navbar-brand" href="#">
-            <i class="fas fa-comment-dots"></i> TweetBar
-        </a>
-        
-        <div class="search-container">
-            <input type="search" placeholder="Search tweets..." aria-label="Search">
-        </div>
-        
-        <div class="auth-buttons">
-            {% if user.is_authenticated %}
-                <div class="user-menu">
-                    <img src="{% static 'images/default-avatar.jpg' %}" alt="Profile" class="user-avatar">
-                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline">Logout</button>
-                    </form>
-                </div>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
-                <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
-            {% endif %}
-        </div>
-    </nav>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-comment-dots"></i> TweetBar
+    </a>
 
-    <!-- Main Content -->
-    <div class="container">
-        <a class="create-tweet-btn" href="{% url 'tweet_create' %}">
-            <i class="fas fa-plus"></i> Create Tweet
-        </a>
-        
-        <!-- Tweet Grid -->
-        <div class="image-grid">
-            {% for tweet in tweets %}
-            <div class="tweet-card">
-                <!-- Tweet Image -->
-                <div class="tweet-img-container">
-                    <img src="{{ tweet.photo.url }}" alt="Tweet Image" class="tweet-img" onclick="openModal('{{ tweet.photo.url }}')">
-                </div>
-                
-                <!-- Tweet Content -->
-                <div class="tweet-content">
-                    <div class="tweet-header">
-                        <img src="{% static 'images/default-avatar.jpg' %}" alt="{{ tweet.user.username }}" class="user-avatar">
-                        <h5 class="tweet-username">@{{ tweet.user.username }}</h5>
-                    </div>
-                    
-                    <p class="tweet-text">{{ tweet.text }}</p>
-                    
-                    <div class="tweet-footer">
-                        <span class="tweet-date">{{ tweet.updated_at|date:"M j, Y · g:i a" }}</span>
-                        
-                        {% if tweet.user == user %}
-                        <div class="tweet-actions">
-                            <a href="{% url 'tweet_edit' tweet.id %}" class="action-btn">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="{% url 'tweet_delete' tweet.id %}" class="action-btn" style="color: #e0245e;">
-                                <i class="fas fa-trash"></i> Delete
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+    <div class="search-container">
+      <input type="search" id="tweetSearch" placeholder="Search tweets..." aria-label="Search" />
     </div>
 
-    <!-- Image Modal -->
-    <div id="imageModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="expandedImage">
-    </div>
+    <div class="auth-buttons">
+      {% if user.is_authenticated %}
+      <div class="user-menu" style="display: flex; align-items: center; gap: 15px;">
+        <div class="avatar-container" id="avatarContainer">
+          {% if user.profile.avatar and user.profile.avatar.url %}
+            <img src="{{ user.profile.avatar.url }}" alt="Profile" class="user-avatar" />
+          {% else %}
+            <img src="{% static 'images/A1.png' %}" alt="Profile" class="user-avatar" />
+          {% endif %}
 
-    <script>
-        // Modal functionality
-        function openModal(imageUrl) {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("expandedImage");
-            modal.style.display = "block";
-            modalImg.src = imageUrl;
-            document.body.style.overflow = "hidden"; // Prevent scrolling
-        }
-        
-        function closeModal() {
-            document.getElementById("imageModal").style.display = "none";
-            document.body.style.overflow = "auto"; // Re-enable scrolling
-        }
-        
-        // Close modal when clicking outside image
-        window.onclick = function(event) {
-            const modal = document.getElementById("imageModal");
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-        
-        // Add subtle animation to tweet cards when they come into view
-        document.addEventListener('DOMContentLoaded', function() {
-            const tweetCards = document.querySelectorAll('.tweet-card');
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = 1;
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, { threshold: 0.1 });
-            
-            tweetCards.forEach(card => {
-                card.style.opacity = 0;
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                observer.observe(card);
-            });
+          <h5 class="tweet-username">@{{ user.username }}</h5>
+
+          <form id="avatarForm" method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data" class="avatar-form-overlay">
+            {% csrf_token %}
+            <label for="avatarUpload" style="color: #fff; cursor: pointer; font-size: 11px;">Change</label>
+            <input id="avatarUpload" type="file" name="avatar" accept="image/*" style="display: none;" />
+          </form>
+        </div>
+
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="create-tweet-btn" style="padding: 6px 12px; font-size: 13px; background-color: transparent; color: #fff; border: 1px solid #999; border-radius: 5px; cursor: pointer;">
+            Logout
+          </button>
+        </form>
+      </div>
+
+      <script>
+        const avatarContainer = document.getElementById('avatarContainer');
+        const avatarForm = document.getElementById('avatarForm');
+        const avatarUpload = document.getElementById('avatarUpload');
+
+        avatarContainer.addEventListener('mouseenter', () => {
+          avatarForm.style.display = 'block';
         });
-    </script>
+
+        avatarContainer.addEventListener('mouseleave', () => {
+          avatarForm.style.display = 'none';
+        });
+
+        avatarUpload.addEventListener('change', function () {
+          const file = this.files[0];
+          if (file && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            alert("Please upload JPG, PNG, or WEBP images.");
+            this.value = '';
+          } else {
+            avatarForm.submit();
+          }
+        });
+      </script>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert {% if message.tags == 'error' %}alert-error{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Main Content -->
+  <div class="container">
+    <a class="create-tweet-btn" href="{% url 'tweet_create' %}">
+      <i class="fas fa-plus"></i> Create Tweet
+    </a>
+
+    <div class="image-grid">
+      {% for tweet in tweets %}
+      <div class="tweet-card">
+        <div class="tweet-img-container">
+          {% if tweet.photo %}
+            <img src="{{ tweet.photo.url }}" alt="Tweet Image" class="tweet-img" onclick="openModal('{{ tweet.photo.url }}')" />
+          {% else %}
+            <img src="{% static 'images/error.png' %}" alt="Default Tweet Image" class="tweet-img" />
+          {% endif %}
+        </div>
+
+        <div class="tweet-content">
+          <div class="tweet-header">
+            {% if tweet.user.profile.avatar and tweet.user.profile.avatar.url %}
+              <img src="{{ tweet.user.profile.avatar.url }}" alt="{{ tweet.user.username }}" class="user-avatar" />
+            {% else %}
+              <img src="{% static 'images/A1.png' %}" alt="{{ tweet.user.username }}" class="user-avatar" />
+            {% endif %}
+            <h5 class="tweet-username">@{{ tweet.user.username }}</h5>
+          </div>
+
+          <p class="tweet-text">{{ tweet.text|truncatechars:200 }}</p>
+
+          <div class="tweet-footer">
+            <span class="tweet-date" datetime="{{ tweet.updated_at|date:'c' }}" title="{{ tweet.updated_at|date:'M j, Y · g:i A' }}"></span>
+
+            {% if tweet.user == user %}
+            <div class="tweet-actions">
+              <a href="{% url 'tweet_edit' tweet.id %}" class="action-btn"><i class="fas fa-edit"></i> Edit</a>
+              <a href="{% url 'tweet_delete' tweet.id %}" class="action-btn" style="color: #e0245e;"><i class="fas fa-trash"></i> Delete</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="imageModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="expandedImage" />
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      timeago.render(document.querySelectorAll('.tweet-date'));
+      document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 9000);
+      });
+    });
+
+    function openModal(imageUrl) {
+      const modal = document.getElementById('imageModal');
+      const expandedImage = document.getElementById('expandedImage');
+      modal.style.display = 'block';
+      expandedImage.src = imageUrl;
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+  </script>
+
+  <script src="{% static 'js/tweetlist.js' %}"></script>
 </body>
 </html>

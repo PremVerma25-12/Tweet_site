@@ -1,105 +1,98 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <title>Welcome Back | Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        /* General body styles */
-        body {
-            background-color: #121212; /* Dark background */
-            font-family: Arial, sans-serif; /* Font style */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh; /* Full height */
-            margin: 0;
-            padding: 0;
-            color: #fff; /* White text */
-        }
 
-        /* Title styles */
-        h1 {
-            color: #ffffff; /* White color for title */
-            margin-bottom: 20px; /* Space below title */
-            font-size: 32px; /* Title size */
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); /* Glow effect */
-        }
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        /* Form container styles */
-        form {
-            background: linear-gradient(145deg, #2a2a2a, #1f1f1f); /* Gradient background */
-            padding: 30px; /* Padding around form */
-            border-radius: 15px; /* Rounded corners */
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Light shadow */
-            width: 300px; /* Fixed width */
-            text-align: center; /* Centered text */
-        }
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        /* Input field styles */
-        input[type="text"],
-        input[type="password"] {
-            width: 100%; /* Full width */
-            padding: 10px; /* Padding inside input */
-            margin: 8px 0; /* Margin around input */
-            border: none; /* No border */
-            border-radius: 5px; /* Rounded corners */
-            font-size: 16px; /* Font size */
-            background-color: #333; /* Dark input background */
-            color: #fff; /* White text */
-            transition: background-color 0.3s; /* Transition effect */
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            background-color: #444; /* Lighter background on focus */
-        }
-
-        /* Button styles */
-        button {
-            background-color: #0095f6; /* Instagram blue */
-            color: #ffffff; /* White text */
-            padding: 10px; /* Padding around button */
-            border: none; /* No border */
-            border-radius: 5px; /* Rounded corners */
-            font-size: 16px; /* Font size */
-            cursor: pointer; /* Pointer cursor on hover */
-            width: 100%; /* Full width */
-            margin-top: 10px; /* Space above button */
-            transition: background-color 0.3s; /* Transition effect */
-        }
-
-        button:hover {
-            background-color: #007bbf; /* Darker blue on hover */
-        }
-
-        /* Link styles */
-        p {
-            margin-top: 15px; /* Space above paragraph */
-            color: #b0b0b0; /* Gray text */
-        }
-
-        a {
-            color: #0095f6; /* Instagram blue */
-            text-decoration: none; /* No underline */
-        }
-
-        a:hover {
-            text-decoration: underline; /* Underline on hover */
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/registration.css' %}">
 </head>
 
 <body>
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+
+    <!-- Django Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Logo -->
+    <div class="logo">Social-Connect</div>
+
+    <!-- Login Container -->
+    <div class="auth-container">
+        <h2>Sign In to Your Account</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="errorlist">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+                    {% if field.name == "password" %}
+                        <div class="password-wrapper">
+                            {{ field }}
+                            <span class="toggle-password" onclick="togglePassword('{{ field.id_for_label }}', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+
+                    {% if field.errors %}
+                        <div class="errorlist">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="{% url 'register' %}">Sign up</a>
+        </div>
+    </div>
+
+    <!-- JS for eye toggle -->
+    <script>
+        function togglePassword(fieldId, icon) {
+            const input = document.getElementById(fieldId);
+            const eye = icon.querySelector("i");
+
+            if (input.type === "password") {
+                input.type = "text";
+                eye.classList.remove("fa-eye");
+                eye.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                eye.classList.remove("fa-eye-slash");
+                eye.classList.add("fa-eye");
+            }
+        }
+    </script>
+
+    <!-- Optional: External login-specific JS -->
+    <script src="{% static 'js/login.js' %}"></script>
 </body>
 
 </html>

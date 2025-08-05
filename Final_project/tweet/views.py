@@ -1,16 +1,12 @@
 from django.shortcuts import render
-from .models import Tweet
+from .models import Tweet , Profile
 from .forms import TweetForm , UserRegistrationFrom
 from django.shortcuts import get_object_or_404 , redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib import messages
+from django.db import IntegrityError
 
-# Create your views here.
-
-
-
-def index(request):
-    return render(request, 'index.html')
 
 
 def tweet_list(request):
@@ -55,13 +51,43 @@ def tweet_delete(request, tweet_id):
 
 def register(request):
     if request.method == 'POST':
-      form = UserRegistrationFrom(request.POST)
-      if form.is_valid():
-          user = form.save(commit=False)
-          user.set_password(form.cleaned_data['password1'])
-          user.save()
-          login(request,user)
-          return redirect('tweet_list')
+        form = UserRegistrationFrom(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.set_password(form.cleaned_data['password1'])
+                user.save()
+                login(request, user)
+                messages.success(request, "Registration successful! You are now logged in.")
+                return redirect('tweet_list')  # Fixed: removed the context dict from redirect
+            except IntegrityError:
+                messages.error(request, "Username already exists. Please choose a different one.")
+        else:
+            # Form is invalid - collect all error messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
-        form = UserRegistrationFrom
-    return render(request , 'registration/register.html' , {'form' : form})
+        form = UserRegistrationFrom()  # Proper instantiation
+    
+    return render(request, 'registration/register.html', {'form': form})
+
+
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+@login_required
+def update_avatar(request):
+    if request.method == 'POST':
+        avatar = request.FILES.get('avatar')
+        if avatar:
+            if avatar.size > 2*1024*1024:  # 2MB limit
+                messages.error(request, "Image size should be less than 2MB")
+            else:
+                profile, created = Profile.objects.get_or_create(user=request.user)  # Fixed
+                profile.avatar = avatar
+                profile.save()
+                messages.success(request, "Avatar updated successfully")
+        else:
+            messages.error(request, "No image selected")
+    return redirect('tweet_list')
